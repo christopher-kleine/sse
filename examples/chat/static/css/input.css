@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind variants;
+@tailwind components;
+@tailwind utilities;
+
+/* @import url("./basic.css");
+
+#login {
+    border: 1px solid black;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+}
+
+#login label {
+    display: block;
+}
+
+form {
+    color: #eff6ff;
+    padding: 40px;
+    background-color: #2563eb;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    border-radius: 20px;
+} */

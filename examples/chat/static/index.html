@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>SSE Chat Demo</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="/css/login.css">
+	</head>
+	<body class="flex justify-center items-center bg-blue-700 h-screen w-screen">
+		<div class="bg-blue-500 rounded-3xl">
+			<form action="/chat" method="post" class="flex flex-col p-12 gap-2">
+				<label>
+					Name:
+					<input type="text" name="name">
+				</label>
+
+				<label>
+					Room:
+					<input type="text" name="room">
+				</label>
+
+				<input type="submit" class="bg-blue-950 text-white" value="Join">
+			</form>
+		</dialog>
+	</body>
+</html>

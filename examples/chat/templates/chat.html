@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Demo</title>
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+
+<body class="bg-blue-950 text-white flex w-screen flex-col h-screen gap-2">
+    <div class="flex gap-2 flex-wrap flex-grow">
+        <div id="lobby" class="bg-blue-700 flex-grow"></div>
+        <div id="history" class="bg-blue-700 flex-grow-[2]"></div>
+    </div>
+    <div id="input" class="w-screen bg-blue-700 flex gap-2">
+        <input id="text" class="flex-grow text-black"> 
+        <button>Send</button>
+    </div>
+
+    <script>
+        function sendMsg() {
+            console.log(document.querySelector("#text").value)
+            fetch("/api/send", {
+                method: "post",
+                credentials: "same-origin",
+                body: document.querySelector("#text").value,
+            })
+        }
+
+        (function() {
+        	let es = new EventSource("/api/sse?name={{.Name}}&room={{.Room}}");
+
+        	es.addEventListener("message", function(ev) {
+                console.log(ev.data)
+        		document.querySelector("#history").innerHTML += ev.data
+        	})
+
+            es.addEventListener("lobby", function(ev) {
+                console.log(ev.data)
+                document.querySelector("#lobby").innerHTML = ev.data
+            })
+
+            document.querySelector("#text").addEventListener("keypress", function(ev) {
+                if (ev.keyCode == 13) {
+                    sendMsg()
+                }
+            })
+
+            document.querySelector("button").addEventListener("click", sendMsg)
+        })()
+    </script>
+</body>
+
+</html>

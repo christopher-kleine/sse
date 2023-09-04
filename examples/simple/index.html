@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Simple SSE Demo</title>
+	</head>
+	<body>
+		<h1>Simple SSE Demo</h1>
+		
+		<div id="content"></div>
+
+		<script>
+			(function() {
+				let es = new EventSource("/api/sse");
+
+				es.addEventListener("message", function(ev) {
+					document.querySelector("#content").innerHTML = new Date(ev.data).toLocaleString()
+				})
+			})()
+		</script>
+	</body>
+</html>
