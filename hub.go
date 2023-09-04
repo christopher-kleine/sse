@@ -12,16 +12,19 @@ type Hub struct {
 
 	mu sync.Mutex
 
-	OnConnect    func(*http.Request, *Session)
-	OnDisconnect func(*http.Request, *Session)
+	OnConnect    func(*Session)
+	OnDisconnect func(*Session)
 }
 
+// New creates a new SSE-Hub.
 func New() *Hub {
 	return &Hub{
 		sessions: make(map[string]*Session, 0),
 	}
 }
 
+// Publish let's you publish an event to all connected sessions.
+// If you want to send it only to sessions with certain criteria, consider FilteredPublish.
 func (h *Hub) Publish(ev *Event) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -31,6 +34,8 @@ func (h *Hub) Publish(ev *Event) {
 	}
 }
 
+// FilteredPublish works almost the same as Publish. But it let's you specify a function
+// that filters only wanted sessions.
 func (h *Hub) FilteredPublish(ev *Event, fn func(*Session) bool) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -42,6 +47,8 @@ func (h *Hub) FilteredPublish(ev *Event, fn func(*Session) bool) {
 	}
 }
 
+// ServeHTTP accepts new SSE connections and adds them to the Session-Pool.
+// OnConnect and OnDisconnect are triggered by this function.
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_, ok := w.(http.Flusher)
 	if !ok {
@@ -50,24 +57,25 @@ func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	session := NewSession()
-	id := h.AddSession(session)
+	session.Request = r
+	id := h.addSession(session)
 	session.ID = id
 
 	go session.ServeHTTP(w, r)
 
 	if h.OnConnect != nil {
-		h.OnConnect(r, session)
+		h.OnConnect(session)
 	}
 
 	<-r.Context().Done()
-	h.RemoveSession(id)
+	h.removeSession(id)
 
 	if h.OnDisconnect != nil {
-		h.OnDisconnect(r, session)
+		h.OnDisconnect(session)
 	}
 }
 
-func (h *Hub) AddSession(session *Session) string {
+func (h *Hub) addSession(session *Session) string {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -80,17 +88,19 @@ func (h *Hub) AddSession(session *Session) string {
 	return id
 }
 
-func (h *Hub) RemoveSession(id string) {
+func (h *Hub) removeSession(id string) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
 	delete(h.sessions, id)
 }
 
+// ConnectionCouunt returns the currently active sessions/connections
 func (h *Hub) ConnectionCount() int {
 	return len(h.sessions)
 }
 
+// Sessions returns a copy of the current sessions.
 func (h *Hub) Sessions() SessionSlice {
 	h.mu.Lock()
 	defer h.mu.Unlock()

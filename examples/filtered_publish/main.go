@@ -13,16 +13,16 @@ func main() {
 	hub := sse.New()
 	var count int = 0
 
-	hub.OnConnect = func(r *http.Request, session *sse.Session) {
+	hub.OnConnect = func(session *sse.Session) {
 		session.Set("count", count)
 		count++
 		session.Send(&sse.Event{
 			Data: "HELLO WORLD!",
 		})
-		log.Printf("Connected: IP %v connected with %+v", r.RemoteAddr, session)
+		log.Printf("Connected: IP %v connected with %+v", session.Request.RemoteAddr, session)
 	}
-	hub.OnDisconnect = func(r *http.Request, session *sse.Session) {
-		log.Printf("DisConnected: IP %v connected with %+v", r.RemoteAddr, session)
+	hub.OnDisconnect = func(session *sse.Session) {
+		log.Printf("DisConnected: IP %v connected with %+v", session.Request.RemoteAddr, session)
 	}
 
 	go func() {

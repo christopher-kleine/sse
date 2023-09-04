@@ -7,7 +7,11 @@ import (
 	"time"
 )
 
+// Session manages a SSE connection.
+// It also contains custom infos set by the developer.
 type Session struct {
+	Request *http.Request
+
 	values map[string]any
 	recv   chan *Event
 	ID     string
@@ -17,6 +21,7 @@ type Session struct {
 
 type SessionSlice []*Session
 
+// NewSession creates a new Session and makes sure all required members are operational.
 func NewSession() *Session {
 	return &Session{
 		values: make(map[string]any),
@@ -25,6 +30,7 @@ func NewSession() *Session {
 	}
 }
 
+// Send sends an event to the connection.
 func (s *Session) Send(ev *Event) {
 	s.recv <- ev
 }
@@ -53,6 +59,7 @@ func (s *Session) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Set sets a custom property.
 func (s *Session) Set(key string, value any) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -60,6 +67,7 @@ func (s *Session) Set(key string, value any) {
 	s.values[key] = value
 }
 
+// Get returns the value of a custom property.
 func (s *Session) Get(key string) any {
 	if v, ok := s.values[key]; ok {
 		return v

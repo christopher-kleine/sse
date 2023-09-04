@@ -1,16 +1,15 @@
 package main
 
 import (
-	"net/http"
 	"strings"
 	"time"
 
 	"github.com/christopher-kleine/sse"
 )
 
-func (app *App) join(r *http.Request, s *sse.Session) {
-	name := r.FormValue("name")
-	room := strings.ToLower(r.FormValue("room"))
+func (app *App) join(s *sse.Session) {
+	name := s.Request.FormValue("name")
+	room := strings.ToLower(s.Request.FormValue("room"))
 
 	s.Set("Name", name)
 	s.Set("Room", room)
