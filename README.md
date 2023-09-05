@@ -18,39 +18,39 @@ go get github.com/christopher-kleine/sse
 package main
 
 import (
-    "net/http"
+	"net/http"
 
-    "github.com/christopher-kleine/sse"
+	"github.com/christopher-kleine/sse"
 )
 
 func main() {
-    // Create a new Hub
-    hub := sse.New()
+	// Create a new Hub
+	hub := sse.New()
 
-    // (Optional): Specify OnConnect and OnDisconnect hooks
-    hub.OnConnect = func(session *sse.Session) {}
-    hub.OnDisconnect = func(session *sse.Session) {}
+	// (Optional): Specify OnConnect and OnDisconnect hooks
+	hub.OnConnect = func(session *sse.Session) {}
+	hub.OnDisconnect = func(session *sse.Session) {}
 
-    // Specify the endpoint
-    http.Handle("/sse", hub)
+	// Specify the endpoint
+	http.Handle("/sse", hub)
 
-    // (Optional): Customize the request
-    /*
-    http.HandleFunc("/sse", func(w http.Response, r *http.Request) {
-        w.Header().Set("Access-Control-Allow-Origin", "*")
+	// (Optional): Customize the request
+	/*
+	http.HandleFunc("/sse", func(w http.Response, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		hub.ServeHTTP(w, r)
-    })
-    */
+	})
+	*/
 
-    // Publish some data!
-    go func() {
-        for {
-            hub.Publish(&sse.Event{ Data: "Hello World" })
-            time.Sleep(1 * time.Second)
-        }
-    }()
+	// Publish some data!
+	go func() {
+		for {
+			hub.Publish(&sse.Event{ Data: "Hello World" })
+			time.Sleep(1 * time.Second)
+		}
+	}()
 
-    http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8080", nil)
 }
 ```
 
