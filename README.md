@@ -38,6 +38,7 @@ func main() {
     /*
     http.HandleFunc("/sse", func(w http.Response, r *http.Request) {
         w.Header().Set("Access-Control-Allow-Origin", "*")
+		hub.ServeHTTP(w, r)
     })
     */
 
