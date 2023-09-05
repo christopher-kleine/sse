@@ -61,7 +61,7 @@ You can also publish to selected sessions.
 // Only sent to users we gave the "villain" role.
 ev := &sse.Event{Data: "Hello, Villain. What are your next plans?"}
 hub.FilteredPublish(ev, func(session *sse.Session) bool {
-    return session.Get("role") != "villain"
+    return session.Get("role") == "villain"
 })
 ```
 
