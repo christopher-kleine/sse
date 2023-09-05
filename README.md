@@ -6,6 +6,14 @@ A small library providing easy SSE functionality. The API is inspired by the gre
 
 **Note:** This library is mainly for my own use and didn't account for other use-cases. If you need something more stable or a more mature library, check [r3labs/sse](https://github.com/r3labs/sse). Same goes for if you want a SSE Client library. But please feel free to tear the source and I'm open for PRs.
 
+## Table of Contents
+
+- [Install](#install)
+- [How to use it](#how-to-use-it)
+- [Filtered/Selected Publish](#filteredselected-publish)
+- [HTMX / HTML Templates](#htmx--html-templates)
+- [Using Gin](#using-gin)
+
 ## Install
 
 ```
@@ -62,7 +70,7 @@ You can also publish to selected sessions.
 // Only sent to users we gave the "villain" role.
 ev := &sse.Event{Data: "Hello, Villain. What are your next plans?"}
 hub.FilteredPublish(ev, func(session *sse.Session) bool {
-    return session.Get("role") == "villain"
+	return session.Get("role") == "villain"
 })
 ```
 
@@ -74,4 +82,35 @@ You can use this library to send HTML templates over SSE, since the `Event` type
 ev := &sse.Event{}
 templates.ExecuteTemplate(ev, "index.html", nil)
 hub.Publish(ev)
+```
+
+## Using Gin
+
+The popular web framework [Gin](https://gin-gonic.com/) can be used too:
+
+```go
+package main
+
+import (
+	"net/http"
+	"time"
+
+	"github.com/christopher-kleine/sse"
+	"github.com/gin-gonic/gin"
+)
+
+func main() {
+	hub := sse.New()
+
+	go func() {
+		hub.Publish(&sse.Event{ Data: "ping" })
+		time.Sleep(2 * time.Second)
+	}()
+
+	r := gin.Default()
+	r.GET("/sse", func(c *gin.Context) {
+		hub.ServeHTTP(c.Writer, c.Request)
+	})
+	r.Run()
+}
 ```
