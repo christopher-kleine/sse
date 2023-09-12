@@ -2,22 +2,33 @@
 
 [![go.dev Reference](https://pkg.go.dev/static/frontend/badge/badge.svg)](https://pkg.go.dev/github.com/christopher-kleine/sse) ![Test Status](https://github.com/christopher-kleine/sse/actions/workflows/test.yml/badge.svg)
 
-A small library providing easy SSE functionality. The API is inspired by the gread WebSocket library [melody](https://github.com/olahol/melody).
+## Synopsis
+
+A small library providing easy SSE functionality. The API is inspired by the great WebSocket library [melody](https://github.com/olahol/melody).
 
 **Note:** This library is mainly for my own use and didn't account for other use-cases. If you need something more stable or a more mature library, check [r3labs/sse](https://github.com/r3labs/sse). Same goes for if you want a SSE Client library. But please feel free to tear the source and I'm open for PRs.
 
 ## Table of Contents
 
+- [Synopsis](#synopsis)
+- [Features](#feature)
 - [Install](#install)
 - [How to use it](#how-to-use-it)
 - [Filtered/Selected Publish](#filteredselected-publish)
-- [HTMX / HTML Templates](#htmx--html-templates)
+- [HTML/HTMX Templates](#htmlhtmx-templates)
 - [Using Gin](#using-gin)
+
+## Features
+
+- Zero dependencies
+- [melody](https://github.com/olahol/melody) inspired
+- HTML/HTMX
+- Compatible with standard mux handlers
 
 ## Install
 
 ```
-go get github.com/christopher-kleine/sse
+go get github.com/christopher-kleine/sse@latest
 ```
 
 ## How to use it
@@ -74,7 +85,7 @@ hub.FilteredPublish(ev, func(session *sse.Session) bool {
 })
 ```
 
-## HTMX / HTML Templates
+## HTML/HTMX Templates
 
 You can use this library to send HTML templates over SSE, since the `Event` type implements the `io.Writer` Interface:
 
