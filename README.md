@@ -1,6 +1,6 @@
 # SSE - Melody inspired Server Sent Events Library
 
-[![go.dev Reference](https://pkg.go.dev/static/frontend/badge/badge.svg)](https://pkg.go.dev/github.com/christopher-kleine/sse)
+[![go.dev Reference](https://pkg.go.dev/static/frontend/badge/badge.svg)](https://pkg.go.dev/github.com/christopher-kleine/sse) ![Test Status](https://github.com/christopher-kleine/sse/actions/workflows/test.yml/badge.svg)
 
 A small library providing easy SSE functionality. The API is inspired by the gread WebSocket library [melody](https://github.com/olahol/melody).
 
