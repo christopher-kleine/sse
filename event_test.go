@@ -63,3 +63,60 @@ func TestEventWrite(t *testing.T) {
 		})
 	}
 }
+
+func TestEventJSONData(t *testing.T) {
+	testTable := []struct {
+		name     string
+		input    any
+		expected string
+	}{
+		{
+			name:     "string",
+			input:    "foo",
+			expected: "data: \"foo\"\n\n",
+		},
+		{
+			name:     "integer",
+			input:    1,
+			expected: "data: 1\n\n",
+		},
+		{
+			name:     "float",
+			input:    3.14159,
+			expected: "data: 3.14159\n\n",
+		},
+		{
+			name:     "bool (true)",
+			input:    true,
+			expected: "data: true\n\n",
+		},
+		{
+			name:     "bool (false)",
+			input:    false,
+			expected: "data: false\n\n",
+		},
+		{
+			name:     "struct-1",
+			input:    struct{ Text string }{Text: "foo"},
+			expected: "data: {\"Text\":\"foo\"}\n\n",
+		},
+		{
+			name: "struct-2",
+			input: struct {
+				Text string `json:"text"`
+			}{Text: "foo"},
+			expected: "data: {\"text\":\"foo\"}\n\n",
+		},
+	}
+
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			ev := &sse.Event{}
+			ev.JSONData(testCase.input)
+			actual := ev.String()
+			if actual != testCase.expected {
+				t.Errorf("%q should be %q", actual, testCase.expected)
+			}
+		})
+	}
+}
