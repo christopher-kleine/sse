@@ -1,6 +1,8 @@
 package sse_test
 
 import (
+	"bytes"
+	"io"
 	"testing"
 	"time"
 
@@ -25,6 +27,36 @@ func TestEventString(t *testing.T) {
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			actual := testCase.input.String()
+			if actual != testCase.expected {
+				t.Errorf("%q should be %q", actual, testCase.expected)
+			}
+		})
+	}
+}
+
+func TestEventWrite(t *testing.T) {
+	testTable := []struct {
+		name     string
+		input    io.Reader
+		expected string
+	}{
+		{
+			name:     "simple-text",
+			input:    bytes.NewBufferString("foo"),
+			expected: "data: foo\n\n",
+		},
+		{
+			name:     "multiline-text",
+			input:    bytes.NewBufferString("foo\nbar"),
+			expected: "data: foo\ndata: bar\n\n",
+		},
+	}
+
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			ev := &sse.Event{}
+			io.Copy(ev, testCase.input)
+			actual := ev.String()
 			if actual != testCase.expected {
 				t.Errorf("%q should be %q", actual, testCase.expected)
 			}
