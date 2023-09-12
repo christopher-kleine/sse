@@ -96,6 +96,11 @@ func TestEventJSONData(t *testing.T) {
 			expected: "data: false\n\n",
 		},
 		{
+			name:     "nil",
+			input:    nil,
+			expected: "data: null\n\n",
+		},
+		{
 			name:     "struct-1",
 			input:    struct{ Text string }{Text: "foo"},
 			expected: "data: {\"Text\":\"foo\"}\n\n",
@@ -106,6 +111,22 @@ func TestEventJSONData(t *testing.T) {
 				Text string `json:"text"`
 			}{Text: "foo"},
 			expected: "data: {\"text\":\"foo\"}\n\n",
+		},
+		{
+			name: "struct-3",
+			input: struct {
+				Text string  `json:"text"`
+				Bar  *string `json:"bar,omitempty"`
+			}{Text: "foo"},
+			expected: "data: {\"text\":\"foo\"}\n\n",
+		},
+		{
+			name: "struct-4",
+			input: struct {
+				Text string  `json:"text"`
+				Bar  *string `json:"bar"`
+			}{Text: "foo"},
+			expected: "data: {\"text\":\"foo\",\"bar\":null}\n\n",
 		},
 	}
 
