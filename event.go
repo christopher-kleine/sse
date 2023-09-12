@@ -41,9 +41,11 @@ func (ev *Event) String() string {
 		ev.Data = string(ev.buffer)
 	}
 
-	lines := strings.Split(strings.TrimSpace(ev.Data), "\n")
-	for _, line := range lines {
-		result += fmt.Sprintf("data: %s\n", line)
+	if data := strings.TrimSpace(ev.Data); data != "" {
+		lines := strings.Split(data, "\n")
+		for _, line := range lines {
+			result += fmt.Sprintf("data: %s\n", line)
+		}
 	}
 
 	if ev.Retry > 0 {
