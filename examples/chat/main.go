@@ -19,14 +19,12 @@ var templateFiles, _ = fs.Sub(templates, "templates")
 var t, _ = template.ParseFS(templateFiles, "*.html")
 
 func main() {
-	app := &App{
-		hub: sse.New(),
-	}
-	app.hub.OnConnect = app.join
-	app.hub.OnDisconnect = app.leave
+	app := &App{}
+	app.hub = sse.New().
+		OnConnect(app.join).
+		OnDisconnect(app.leave)
 
-	//http.Handle("/", http.FileServer(http.FS(staticFiles)))
-	http.Handle("/", http.FileServer(http.Dir("./static")))
+	http.Handle("/", http.FileServer(http.FS(staticFiles)))
 	http.HandleFunc("/chat", app.chat)
 	http.Handle("/api/sse", app.hub)
 	http.HandleFunc("/api/send", app.send)
