@@ -12,21 +12,23 @@ import (
 type Session struct {
 	Request *http.Request
 
-	values map[string]any
-	recv   chan *Event
-	ID     string
-	Joined time.Time
-	mu     sync.Mutex
+	headers map[string]string
+	values  map[string]any
+	recv    chan *Event
+	ID      string
+	Joined  time.Time
+	mu      sync.Mutex
 }
 
 type SessionSlice []*Session
 
 // NewSession creates a new Session and makes sure all required members are operational.
-func NewSession() *Session {
+func NewSession(headers map[string]string) *Session {
 	return &Session{
-		values: make(map[string]any),
-		recv:   make(chan *Event),
-		Joined: time.Now(),
+		values:  make(map[string]any),
+		recv:    make(chan *Event),
+		headers: headers,
+		Joined:  time.Now(),
 	}
 }
 
@@ -36,6 +38,10 @@ func (s *Session) Send(ev *Event) {
 }
 
 func (s *Session) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	for header, value := range s.headers {
+		w.Header().Set(header, value)
+	}
+
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Connection", "keep-alive")
@@ -45,6 +51,9 @@ func (s *Session) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "server sent events not supported", http.StatusNotAcceptable)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	flusher.Flush()
 
 	for {
 		select {

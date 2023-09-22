@@ -4,30 +4,33 @@ import (
 	"crypto/rand"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 )
 
 type Hub struct {
 	sessions map[string]*Session
+	headers  map[string]string
 
-	mu sync.Mutex
+	*sync.Mutex
 
-	OnConnect    func(*Session)
-	OnDisconnect func(*Session)
+	onConnect    func(*Session)
+	onDisconnect func(*Session)
 }
 
 // New creates a new SSE-Hub.
 func New() *Hub {
 	return &Hub{
 		sessions: make(map[string]*Session, 0),
+		headers:  make(map[string]string),
 	}
 }
 
 // Publish let's you publish an event to all connected sessions.
 // If you want to send it only to sessions with certain criteria, consider FilteredPublish.
 func (h *Hub) Publish(ev *Event) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Lock()
+	defer h.Unlock()
 
 	for _, session := range h.sessions {
 		go session.Send(ev)
@@ -37,8 +40,8 @@ func (h *Hub) Publish(ev *Event) {
 // FilteredPublish works almost the same as Publish. But it let's you specify a function
 // that filters only wanted sessions.
 func (h *Hub) FilteredPublish(ev *Event, fn func(*Session) bool) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Lock()
+	defer h.Unlock()
 
 	for _, session := range h.sessions {
 		if fn(session) {
@@ -56,28 +59,28 @@ func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session := NewSession()
+	session := NewSession(h.headers)
 	session.Request = r
 	id := h.addSession(session)
 	session.ID = id
 
 	go session.ServeHTTP(w, r)
 
-	if h.OnConnect != nil {
-		h.OnConnect(session)
+	if h.onConnect != nil {
+		h.onConnect(session)
 	}
 
 	<-r.Context().Done()
 	h.removeSession(id)
 
-	if h.OnDisconnect != nil {
-		h.OnDisconnect(session)
+	if h.onDisconnect != nil {
+		h.onDisconnect(session)
 	}
 }
 
 func (h *Hub) addSession(session *Session) string {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Lock()
+	defer h.Unlock()
 
 	buffer := make([]byte, 10)
 	_, _ = rand.Read(buffer)
@@ -89,8 +92,8 @@ func (h *Hub) addSession(session *Session) string {
 }
 
 func (h *Hub) removeSession(id string) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Lock()
+	defer h.Unlock()
 
 	delete(h.sessions, id)
 }
@@ -102,8 +105,8 @@ func (h *Hub) ConnectionCount() int {
 
 // Sessions returns a copy of the current sessions.
 func (h *Hub) Sessions() SessionSlice {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Lock()
+	defer h.Unlock()
 
 	result := make(SessionSlice, len(h.sessions))
 
@@ -118,4 +121,35 @@ func (h *Hub) Sessions() SessionSlice {
 	}
 
 	return result
+}
+
+func (h Hub) WithHeader(header, value string) *Hub {
+	h.headers[header] = value
+	h.Mutex = &sync.Mutex{}
+
+	return &h
+}
+
+func (h Hub) WithAllowOrigin(origin ...string) *Hub {
+	if len(origin) == 0 {
+		origin = []string{"*"}
+	}
+	h.headers["Access-Control-Allow-Origin"] = strings.Join(origin, ", ")
+	h.Mutex = &sync.Mutex{}
+
+	return &h
+}
+
+func (h Hub) OnConnect(f func(*Session)) *Hub {
+	h.onConnect = f
+	h.Mutex = &sync.Mutex{}
+
+	return &h
+}
+
+func (h Hub) OnDisconnect(f func(*Session)) *Hub {
+	h.onDisconnect = f
+	h.Mutex = &sync.Mutex{}
+
+	return &h
 }

@@ -12,7 +12,9 @@ import (
 var files embed.FS
 
 func main() {
-	hub := sse.New()
+	hub := sse.New().
+		WithHeader("X-DEMO", "demo").
+		WithAllowOrigin("chris.isst-gerne.pizza")
 	go Ticker(hub)
 
 	http.Handle("/", http.FileServer(http.FS(files)))

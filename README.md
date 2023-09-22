@@ -1,6 +1,6 @@
 # SSE - Melody inspired Server Sent Events Library
 
-[![go.dev Reference](https://pkg.go.dev/static/frontend/badge/badge.svg)](https://pkg.go.dev/github.com/christopher-kleine/sse) ![Test Status](https://github.com/christopher-kleine/sse/actions/workflows/test.yml/badge.svg)
+[![go.dev Reference](https://pkg.go.dev/static/frontend/badge/badge.svg)](https://pkg.go.dev/github.com/christopher-kleine/sse) ![Test Status](https://github.com/christopher-kleine/sse/actions/workflows/test.yml/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![latest tag](https://img.shields.io/github/v/tag/christopher-kleine/sse)](https://github.com/christopher-kleine/sse/tags)
 
 ## Synopsis
 

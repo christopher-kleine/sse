@@ -10,7 +10,7 @@
 
 		<script>
 			(function() {
-				let es = new EventSource("/api/sse");
+				let es = new EventSource("http://localhost:8080/api/sse");
 
 				es.addEventListener("message", function(ev) {
 					document.querySelector("#content").innerHTML = new Date(ev.data).toLocaleString()
